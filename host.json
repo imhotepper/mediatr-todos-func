@@ -1,0 +1,16 @@
+{
+    "version": "2.0",
+    "logging": {
+        "IncludeScopes": true,
+        "logLevel": {
+            "todos": "Information"
+        },
+        "applicationInsights": {
+            "samplingSettings": {
+                "isEnabled": true,
+                "excludedTypes": "Request"
+            }
+        },
+        
+    }
+}
