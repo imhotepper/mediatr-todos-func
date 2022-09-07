@@ -1,27 +1,26 @@
-using System;
-using System.Reflection;
 using FluentValidation;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
-using todos;
+using mediatr_todos;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
-
+using Microsoft.Extensions.DependencyInjection;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 
-namespace todos;
+namespace mediatr_todos;
 
 public class Startup : FunctionsStartup
 {
     public override void Configure(IFunctionsHostBuilder builder)
     {
+        builder.Services.AddHttpContextAccessor();
         builder.Services.AddLogging();
-        builder.Services.AddValidatorsFromAssembly(typeof(PostTodoCommandValidator).Assembly);
-
-        builder.Services.AddMediatR(typeof(Startup).Assembly)
+        
+        builder.Services.AddMediatR(typeof(GetTodosQuery).Assembly)
             .AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>))
+            .AddTransient(typeof(IPipelineBehavior<,>), typeof(AuthBehavior<,>))
             .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
 
+        builder.Services.AddValidatorsFromAssembly(typeof(PostTodoCommandValidator).Assembly);
 
         builder.Services.AddSingleton<TodosService>();
     }
