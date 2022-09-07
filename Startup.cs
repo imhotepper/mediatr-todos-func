@@ -18,7 +18,7 @@ public class Startup : FunctionsStartup
         builder.Services.AddMediatR(typeof(GetTodosQuery).Assembly)
             .AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>))
             .AddTransient(typeof(IPipelineBehavior<,>), typeof(AuthBehavior<,>))
-            .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
+            .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         builder.Services.AddValidatorsFromAssembly(typeof(PostTodoCommandValidator).Assembly);
 
