@@ -23,5 +23,6 @@ public class Startup : FunctionsStartup
         builder.Services.AddValidatorsFromAssembly(typeof(PostTodoCommandValidator).Assembly);
 
         builder.Services.AddSingleton<TodosService>();
+
     }
 }

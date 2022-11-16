@@ -1,20 +1,20 @@
 
 # Readme
 
-## Autorun on code change [gist link](https://gist.github.com/imhotepper/ef6f932f7dcda819c5c17d2644900b4f)
+<br>
+
+This repo details a simple TodosApi built with Azure Functions, just post and get all, that delegates the logic using [MediatR](https://github.com/jbogard/MediatR) library. For validation [FluentValidaton](https://docs.fluentvalidation.net/en/latest/) is used.
+
+The features used from MediatR are: 
+- **Request/response**: for post and get all
+- **Behaviors**: for user identification, logging and model validation
 
 
-Ensure the following is present in the [project-name].csproj file: 
+Please check the branches for the details.
 
-```
-  <Target Name="RunFunctions">
-    <Exec Command="func start" />
-  </Target>
-  
-```
+<br>
+<br>
+<br>
+Happy coding!
 
-Run it with:
-
-```cmd
-dotnet watch msbuild /t:RunFunctions
-```
+@Imhotepp

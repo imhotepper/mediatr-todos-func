@@ -15,6 +15,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
+
 namespace mediatr_todos
 {
     public class TodosApi
@@ -104,5 +105,6 @@ namespace mediatr_todos
             };
             return resp;
         }
+
     }
 }
