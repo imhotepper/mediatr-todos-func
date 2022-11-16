@@ -12,7 +12,7 @@ public class PostTodoCommand:BaseRequest, IRequest<Todo>{
 
 public record PostTodoCommandHandler : IRequestHandler<PostTodoCommand, Todo>
 {
-    TodosService _service;
+    private readonly TodosService _service;
 
     public PostTodoCommandHandler(TodosService service) => _service = service;
 
