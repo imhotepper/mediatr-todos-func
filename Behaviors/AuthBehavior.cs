@@ -23,15 +23,14 @@ public class AuthBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TRe
     {
         var authHeader = _req.HttpContext.Request.Headers["Authorization"];
         if (  request is BaseRequest br) //&&
-            // !string.IsNullOrEmpty( _req.HttpContext.Request.Headers["Authorization"]))
         {
             //TODO: get the ID from a service
             br.UserId = 100;
         }
 
-        _logger.LogInformation($"Handling {typeof(TRequest).Name}");
+        _logger.LogInformation($"AuthBehavior: handling {typeof(TRequest).Name}");
         var response = await next();
-        _logger.LogInformation($"Handled {typeof(TResponse).Name}");
+        _logger.LogInformation($"AuthBehavior: handled {typeof(TResponse).Name}");
 
         return response;
     }

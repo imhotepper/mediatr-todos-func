@@ -38,7 +38,7 @@ namespace mediatr_todos
             GetTodosQuery gtq,
             CancellationToken cancellationToken)
         {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
+            _logger.LogInformation("C# HTTP trigger function processed a request");
 
             try
             {
@@ -60,7 +60,7 @@ namespace mediatr_todos
             PostTodoCommand todoCommand,
             CancellationToken cancellationToken)
         {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
+            _logger.LogInformation("C# HTTP trigger function processed a request");
 
             try
             {
@@ -71,6 +71,24 @@ namespace mediatr_todos
                 return HandleException(e);
             }
         }
+        
+        
+        [FunctionName("user-registration")]
+        [OpenApiOperation(operationId: "user-registration", tags: new[] { "todos" })]
+        [OpenApiRequestBody("application/json", typeof(UserRegistrationCommand), Description = "JSON request body containing { title}")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(UserRegistrationCommand), Description = "The OK response")]
+        public async Task<IActionResult> RegisterUser(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "register")] UserRegistrationCommand req)
+        {
+            _logger.LogInformation("C# HTTP trigger function processed a request");
+
+            var created = await _mediator.Send(req);
+
+            if (!created) return new BadRequestResult();
+            
+            return new CreatedResult("", null);
+        }
+        
 
         private static IActionResult HandleException(Exception e)
         {
