@@ -3,7 +3,7 @@
     "logging": {
         "IncludeScopes": true,
         "logLevel": {
-            "todos": "Information"
+            "mediatr_todos": "Information"
         },
         "applicationInsights": {
             "samplingSettings": {

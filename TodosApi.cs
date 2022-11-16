@@ -7,72 +7,104 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using FluentValidation;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 
 
-namespace todos;
-
-public class TodosApi
+namespace mediatr_todos
 {
-    private readonly ILogger<TodosApi> _logger;
-
-    public TodosApi(ILogger<TodosApi> log) => _logger = log;
-
-    [FunctionName("todos-get")]
-    [OpenApiOperation(operationId: "get-todos", tags: new[] { "todos" })]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(List<string>),
-        Description = "The OK response")]
-    public async Task<IActionResult> Gets(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)]
-        HttpRequest req,
-        CancellationToken cancellationToken)
+    public class TodosApi
     {
-        _logger.LogInformation("C# HTTP trigger function processed a request.");
+        private readonly ILogger<TodosApi> _logger;
+        private readonly IMediator _mediator;
 
-        try
+        public TodosApi(ILogger<TodosApi> log, IMediator mediator)
         {
-            return new OkObjectResult(new List<string>());
+            _logger = log;
+            _mediator = mediator;
         }
-        catch (Exception e)
+
+        [FunctionName("todos-get")]
+        [OpenApiOperation(operationId: "get-todos", tags: new[] { "todos" })]
+        [OpenApiSecurity("basic_auth",SecuritySchemeType.Http,Scheme = OpenApiSecuritySchemeType.Basic)]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<Todo>),
+            Description = "The OK response")]
+        public async Task<IActionResult> Gets(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)]
+            GetTodosQuery gtq,
+            CancellationToken cancellationToken)
         {
-            return HandleException(e);
+            _logger.LogInformation("C# HTTP trigger function processed a request");
+
+            try
+            {
+                return new OkObjectResult(await _mediator.Send(gtq, cancellationToken));
+            }
+            catch (Exception e)
+            {
+                return HandleException(e);
+            }
         }
-    }
 
-    [FunctionName("todos-post")]
-    [OpenApiOperation(operationId: "post-todos", tags: new[] { "todos" })]
-    [OpenApiRequestBody("application/json", typeof(string), Description = "JSON request body containing { title}")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string),
-        Description = "The OK response")]
-    public async Task<IActionResult> Post(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]
-        HttpRequest request,
-        CancellationToken cancellationToken)
-    {
-        _logger.LogInformation("C# HTTP trigger function processed a request.");
-
-        try
+        [FunctionName("todos-post")]
+        [OpenApiOperation(operationId: "post-todos", tags: new[] { "todos" })]
+        [OpenApiRequestBody("application/json", typeof(PostTodoCommand), Description = "JSON request body containing { title}")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Todo), Description = "The OK response")]
+        [OpenApiSecurity("basic_auth",SecuritySchemeType.Http,Scheme = OpenApiSecuritySchemeType.Basic)]
+        public async Task<IActionResult> Post(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]
+            PostTodoCommand todoCommand,
+            CancellationToken cancellationToken)
         {
-            return new OkResult();
+            _logger.LogInformation("C# HTTP trigger function processed a request");
+
+            try
+            {
+                return new OkObjectResult(await _mediator.Send(todoCommand, cancellationToken));
+            }
+            catch (Exception e)
+            {
+                return HandleException(e);
+            }
         }
-        catch (Exception e)
+        
+        
+        [FunctionName("user-registration")]
+        [OpenApiOperation(operationId: "user-registration", tags: new[] { "todos" })]
+        [OpenApiRequestBody("application/json", typeof(UserRegistrationCommand), Description = "JSON request body containing { title}")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(UserRegistrationCommand), Description = "The OK response")]
+        public async Task<IActionResult> RegisterUser(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "register")] UserRegistrationCommand req)
         {
-            return HandleException(e);
+            _logger.LogInformation("C# HTTP trigger function processed a request");
+
+            var created = await _mediator.Send(req);
+
+            if (!created) return new BadRequestResult();
+            
+            return new CreatedResult("", null);
         }
-    }
+        
 
-    private static IActionResult HandleException(Exception e)
-    {
-        Console.WriteLine($"Exception handling: {e} ");
-        if (e is ValidationException ve)
-            return new UnprocessableEntityObjectResult(
-                ve.Errors.Select(x => new { Property = x.PropertyName, Error = x.ErrorMessage }));
+        private static IActionResult HandleException(Exception e)
+        {
 
-        return new InternalServerErrorResult();
+            Console.WriteLine($"Exception handling: {e} ");
+            if (e is ValidationException ve)
+                return new UnprocessableEntityObjectResult(
+                    ve.Errors.Select(x => new { Property = x.PropertyName, Error = x.ErrorMessage }));
+
+            var resp = new JsonResult(new { Error = e.Message})
+            {
+                StatusCode = ( int)HttpStatusCode.InternalServerError
+            };
+            return resp;
+        }
+
     }
 }

@@ -22,9 +22,6 @@
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Handlers" />
-  </ItemGroup>
 
    <Target Name="RunFunctions">
     <Exec Command="func start" />
