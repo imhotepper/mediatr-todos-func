@@ -98,7 +98,11 @@ namespace mediatr_todos
                 return new UnprocessableEntityObjectResult(
                     ve.Errors.Select(x => new { Property = x.PropertyName, Error = x.ErrorMessage }));
 
-            return new InternalServerErrorResult();
+            var resp = new JsonResult(new { Error = e.Message})
+            {
+                StatusCode = ( int)HttpStatusCode.InternalServerError
+            };
+            return resp;
         }
     }
 }

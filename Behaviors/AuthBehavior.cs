@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -29,6 +30,8 @@ public class AuthBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TRe
         }
 
         _logger.LogInformation($"AuthBehavior: handling {typeof(TRequest).Name}");
+        // throw new Exception("I crashed here: AuthBehavior");
+
         var response = await next();
         _logger.LogInformation($"AuthBehavior: handled {typeof(TResponse).Name}");
 
